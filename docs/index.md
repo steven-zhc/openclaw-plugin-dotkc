@@ -2,23 +2,64 @@
 title: dotkc OpenClaw Plugin
 ---
 
+<div class="badges">
+  <a href="https://github.com/steven-zhc/openclaw-plugin-dotkc"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-repo-181717"></a>
+  <a href="https://dotkc.hczhang.com/"><img alt="dotkc" src="https://img.shields.io/badge/dotkc-manual-2d6cdf"></a>
+  <a href="https://docs.openclaw.ai/tools/plugin"><img alt="OpenClaw plugins" src="https://img.shields.io/badge/OpenClaw-plugins-docs-ff5a2d"></a>
+</div>
+
 # dotkc OpenClaw Plugin (L2)
 
-Typed OpenClaw tools for **dotkc** so agents can interact with secrets workflows through a constrained interface.
+Typed OpenClaw tools for **dotkc** so agents can use secrets workflows through a **constrained interface**.
 
-- **dotkc** is the vault + encryption + allowlist runner. Manual: https://dotkc.hczhang.com/
-- This plugin is the **OpenClaw-side adapter**: it exposes safe, typed tools instead of “just run a shell command”.
+<div class="callout">
+<strong>Goal:</strong> let OpenClaw <em>use</em> secrets without printing them (avoid secrets entering model transcripts).
+</div>
+
+## Quick start
+
+1) Install dotkc and make sure it can decrypt on the OpenClaw host:
+
+```bash
+dotkc status
+```
+
+2) Install this plugin (local dev link):
+
+```bash
+openclaw plugins install -l /path/to/openclaw-plugin-dotkc
+openclaw gateway restart
+```
+
+3) Enable the plugin + opt-in tools:
+
+```json5
+{
+  plugins: {
+    entries: {
+      dotkc: {
+        enabled: true,
+        config: {
+          dotkcBin: "dotkc",
+          specFile: "./dotkc.spec",
+          allowUnsafe: false
+        }
+      }
+    }
+  },
+  tools: { allow: ["dotkc"] }
+}
+```
 
 ## What problem this solves
 
-OpenClaw agents often need credentials (API keys, tokens) to run local tools.
-The unsafe default is to fetch a secret and print it, which can:
+OpenClaw agents often need credentials (API keys, tokens) to run local tools. The unsafe default is to fetch a secret and print it, which can:
 
 - land in the model transcript/context
 - leak into logs or debugging output
 - get pasted into chat accidentally
 
-This plugin focuses on the safer pattern:
+This plugin promotes the safer pattern:
 
 1. Keep an allowlist file in the repo (`dotkc.spec`, **no values**)
 2. Let dotkc resolve values at runtime
@@ -54,120 +95,67 @@ Runs (default):
 dotkc run --spec-file ./dotkc.spec --openclaw
 ```
 
-This is intended to be **redacted output**. This tool should be used for sanity checks.
+Intended for **redacted** sanity checks.
 
-> By default, this plugin does **not** enable unsafe/raw values.
+<div class="callout callout--warn">
+<strong>Important:</strong> by default this plugin does <em>not</em> enable unsafe/raw values.
+</div>
 
-## Install
-
-### Prerequisites
-
-- OpenClaw Gateway running on the host
-- `dotkc` installed on the host (and able to decrypt the vault)
-
-### Install plugin from local path (dev)
-
-```bash
-openclaw plugins install -l /path/to/openclaw-plugin-dotkc
-openclaw gateway restart
-```
-
-Confirm it loaded:
-
-```bash
-openclaw plugins list
-openclaw plugins info dotkc
-```
-
-## Configure
-
-Edit `~/.openclaw/openclaw.json`:
-
-```json5
-{
-  plugins: {
-    entries: {
-      dotkc: {
-        enabled: true,
-        config: {
-          dotkcBin: "dotkc",
-          specFile: "./dotkc.spec",
-
-          // optional overrides
-          // vaultPath: "/path/to/dotkc.vault",
-          // keyPath: "~/.dotkc/key",
-
-          // strongly discouraged
-          allowUnsafe: false
-        }
-      }
-    }
-  },
-
-  // opt-in plugin tools (optional tools require allow)
-  tools: {
-    allow: ["dotkc"]
-  }
-}
-```
-
-Restart:
-
-```bash
-openclaw gateway restart
-```
-
-## How it works (principles)
+## How it works
 
 - The plugin runs **in-process** with the OpenClaw Gateway.
 - Each tool spawns `dotkc` as a subprocess and expects a single `--openclaw` JSON object on stdout.
-- We keep the tool surface small and avoid “return raw secret values” APIs.
+- The tool surface is intentionally small (no “return raw secret values” API).
 
 ## Security model / guardrails
 
 - `dotkc_inspect` is designed for redacted output.
 - The plugin also applies **defensive redaction**: it redacts obvious value-bearing fields (`env`, `value`, `token`, `apiKey`, etc.) unless you explicitly enable `allowUnsafe`.
-- `allowUnsafe` exists only for debugging on a trusted machine; it is **off by default**.
-- Do **not** build workflows that call `dotkc get` in agent mode; it prints raw values.
+- `allowUnsafe` is for debugging on a trusted machine only.
+- Do **not** build agent workflows that call `dotkc get` (it prints raw values).
 
-Recommended workflow:
-
-- Put only allowlist specs in the repo: `dotkc.spec`
-- Use `dotkc run --spec-file ./dotkc.spec -- <cmd>` to inject secrets
+<div class="callout callout--danger">
+<strong>Threat model:</strong> if a secret is printed, it can enter model transcripts and/or be sent to the model provider.
+Design workflows so secrets are injected into child processes, not displayed.
+</div>
 
 ## Troubleshooting
 
-### "dotkc not found"
+### “dotkc not found”
 
-Set plugin config `dotkcBin` to an absolute path, or ensure `dotkc` is on PATH for the Gateway service.
+Set `dotkcBin` to an absolute path, or ensure `dotkc` is on PATH for the Gateway service.
 
-### "failed to parse dotkc --openclaw JSON"
+### “failed to parse dotkc --openclaw JSON”
 
-- Run the underlying command by hand on the host:
+Run the underlying command on the host:
 
 ```bash
 dotkc status --openclaw
 ```
 
-- Ensure nothing else is writing to stdout (no banners, no extra logs).
+Ensure nothing else writes to stdout (no banners, no extra logs).
 
 ### Vault/key problems
-
-Run:
 
 ```bash
 dotkc doctor --openclaw
 ```
 
-And verify:
+Check:
 
 - vault exists (synced ciphertext)
 - key exists (local file)
 - dotkc can decrypt
 
-## What else we should add (next)
+## Links
 
-- Stronger output filtering: reject any plaintext-looking env output defensively
-- A safe “run” tool: allow execution only via a spec file allowlist + command allowlist
+- dotkc manual: https://dotkc.hczhang.com/
+- OpenClaw plugin docs: https://docs.openclaw.ai/tools/plugin
+- OpenClaw agent tools guide: https://docs.openclaw.ai/plugins/agent-tools
+
+## Roadmap
+
+- Stronger leakage detection: fail closed if plaintext-looking env lines appear
+- Safe execution tool: run only via spec allowlist + command allowlist (return only exit code + stderr summary)
 - Tests (golden JSON parsing + failure modes)
-- Publish to npm as an installable plugin package (optional)
+- Optional: publish to npm

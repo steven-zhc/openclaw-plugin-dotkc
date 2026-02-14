@@ -6,7 +6,7 @@ title: dotkc OpenClaw Plugin
 
 Typed OpenClaw tools for **dotkc** so agents can interact with secrets workflows through a constrained interface.
 
-- **dotkc** is the vault + encryption + allowlist runner.
+- **dotkc** is the vault + encryption + allowlist runner. Manual: https://dotkc.hczhang.com/
 - This plugin is the **OpenClaw-side adapter**: it exposes safe, typed tools instead of “just run a shell command”.
 
 ## What problem this solves

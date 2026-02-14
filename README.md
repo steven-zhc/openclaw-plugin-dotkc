@@ -4,6 +4,8 @@ This plugin exposes **typed OpenClaw tools** for dotkc so agents can interact wi
 
 Docs: https://openclaw-dotkc.hczhang.com/
 
+dotkc manual: https://dotkc.hczhang.com/
+
 ## Tools
 
 - `dotkc_status` (required)

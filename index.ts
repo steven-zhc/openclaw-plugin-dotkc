@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { spawn } from 'node:child_process';
 
 // Prefer a stable plugin id (over package-derived ids).
-export const id = 'dotkc';
+export const id = 'dotkc-openclaw-plugin';
 
 function runDotkc({ dotkcBin, args, stdinText }) {
   return new Promise((resolve) => {
@@ -43,7 +43,10 @@ function tryParseOpenClawJson(text: string) {
 }
 
 export default function dotkcPlugin(api: any) {
-  const cfg = api?.config?.plugins?.entries?.dotkc?.config ?? api?.config?.plugins?.entries?.['dotkc']?.config;
+  const cfg =
+    api?.config?.plugins?.entries?.['dotkc-openclaw-plugin']?.config ??
+    api?.config?.plugins?.entries?.dotkc?.config ??
+    api?.config?.plugins?.entries?.['dotkc']?.config;
 
   const dotkcBin = cfg?.dotkcBin || 'dotkc';
 

@@ -22,7 +22,7 @@ openclaw gateway restart
 {
   plugins: {
     entries: {
-      dotkc: {
+      "dotkc-openclaw-plugin": {
         enabled: true,
         config: {
           dotkcBin: "dotkc",

@@ -1,0 +1,41 @@
+{
+  "id": "dotkc",
+  "label": "dotkc",
+  "description": "dotkc integration: safe secrets inspection + env-injection workflows for OpenClaw",
+  "kind": "tools",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "dotkcBin": { "type": "string", "default": "dotkc" },
+      "vaultPath": { "type": "string" },
+      "keyPath": { "type": "string" },
+      "specFile": { "type": "string", "default": "./dotkc.spec" },
+      "allowUnsafe": { "type": "boolean", "default": false }
+    }
+  },
+  "uiHints": {
+    "dotkcBin": { "label": "dotkc binary", "placeholder": "dotkc" },
+    "vaultPath": { "label": "Vault path (optional)", "placeholder": "/path/to/dotkc.vault" },
+    "keyPath": { "label": "Key path (optional)", "placeholder": "~/.dotkc/key", "sensitive": true },
+    "specFile": { "label": "Spec allowlist file", "placeholder": "./dotkc.spec" },
+    "allowUnsafe": { "label": "Allow unsafe values", "help": "If enabled, dotkc_inspect may return raw values. Strongly discouraged." }
+  },
+  "tools": [
+    {
+      "name": "dotkc_status",
+      "description": "dotkc status as OpenClaw JSON (paths + canDecrypt).",
+      "optional": false
+    },
+    {
+      "name": "dotkc_doctor",
+      "description": "dotkc doctor as OpenClaw JSON diagnostics.",
+      "optional": true
+    },
+    {
+      "name": "dotkc_inspect",
+      "description": "Resolve allowlisted specs and return redacted env preview (never prints values by default).",
+      "optional": true
+    }
+  ]
+}

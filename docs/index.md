@@ -126,6 +126,7 @@ openclaw gateway restart
 ## Security model / guardrails
 
 - `dotkc_inspect` is designed for redacted output.
+- The plugin also applies **defensive redaction**: it redacts obvious value-bearing fields (`env`, `value`, `token`, `apiKey`, etc.) unless you explicitly enable `allowUnsafe`.
 - `allowUnsafe` exists only for debugging on a trusted machine; it is **off by default**.
 - Do **not** build workflows that call `dotkc get` in agent mode; it prints raw values.
 

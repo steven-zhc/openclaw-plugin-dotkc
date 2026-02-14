@@ -1,0 +1,4 @@
+title: dotkc OpenClaw Plugin
+description: Typed OpenClaw tools for dotkc (safe secrets inspection + env injection)
+theme: jekyll-theme-cayman
+markdown: kramdown

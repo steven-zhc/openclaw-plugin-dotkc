@@ -2,7 +2,7 @@ import { Type } from '@sinclair/typebox';
 import { spawn } from 'node:child_process';
 
 // Prefer a stable plugin id (over package-derived ids).
-export const id = 'dotkc-openclaw-plugin';
+export const id = 'dotkc';
 
 function runDotkc({ dotkcBin, args, stdinText }: { dotkcBin: string; args: string[]; stdinText?: string }) {
   return new Promise<{ code: number; out: string; err: string }>((resolve) => {

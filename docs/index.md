@@ -31,6 +31,11 @@ dotkc status
 2) Install this plugin (local dev link):
 
 ```bash
+# from npm (recommended)
+openclaw plugins install @hcz/openclaw-plugin-dotkc@0.1.0
+openclaw gateway restart
+
+# or local dev link
 openclaw plugins install -l /path/to/openclaw-plugin-dotkc
 openclaw gateway restart
 ```
@@ -54,6 +59,10 @@ openclaw gateway restart
   tools: { allow: ["dotkc"] }
 }
 ```
+
+<div class="callout">
+<strong>Recommended install:</strong> <code>openclaw plugins install @hcz/openclaw-plugin-dotkc@0.1.0</code>
+</div>
 
 ## What problem this solves
 

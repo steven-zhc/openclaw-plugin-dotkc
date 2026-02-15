@@ -1,11 +1,22 @@
 {
-  "name": "@hcz/dotkc-openclaw-plugin",
-  "version": "0.0.1",
-  "private": true,
-  "type": "module",
-  "description": "OpenClaw plugin: dotkc integration (safe secrets inspection + env injection workflows)",
-  "main": "index.ts",
+  "name": "@hcz/openclaw-plugin-dotkc",
+  "version": "0.1.0",
+  "description": "OpenClaw plugin: dotkc integration (typed tools + safe secrets inspection)",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steven-zhc/openclaw-plugin-dotkc.git"
+  },
+  "homepage": "https://openclaw-dotkc.hczhang.com/",
+  "type": "module",
+  "main": "index.ts",
+  "files": [
+    "index.ts",
+    "openclaw.plugin.json",
+    "README.md",
+    "LICENSE",
+    "ROADMAP.md"
+  ],
   "openclaw": {
     "extensions": ["./index.ts"]
   },

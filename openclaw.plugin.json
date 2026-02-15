@@ -1,5 +1,5 @@
 {
-  "id": "dotkc-openclaw-plugin",
+  "id": "dotkc",
   "label": "dotkc",
   "description": "dotkc integration: safe secrets inspection + env-injection workflows for OpenClaw",
   "kind": "tools",

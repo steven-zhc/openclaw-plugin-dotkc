@@ -32,7 +32,7 @@ dotkc status
 
 ```bash
 # from npm (recommended)
-openclaw plugins install @hcz/dotkc-openclaw@0.1.0
+openclaw plugins install dotkc-openclaw@0.1.0
 openclaw gateway restart
 
 # or local dev link
@@ -61,7 +61,7 @@ openclaw gateway restart
 ```
 
 <div class="callout">
-<strong>Recommended install:</strong> <code>openclaw plugins install @hcz/dotkc-openclaw@0.1.0</code>
+<strong>Recommended install:</strong> <code>openclaw plugins install dotkc-openclaw@0.1.0</code>
 </div>
 
 ## What problem this solves

@@ -1,5 +1,5 @@
 {
-  "name": "@hcz/dotkc-openclaw",
+  "name": "dotkc-openclaw",
   "version": "0.1.0",
   "description": "OpenClaw plugin: dotkc integration (typed tools + safe secrets inspection)",
   "license": "Apache-2.0",

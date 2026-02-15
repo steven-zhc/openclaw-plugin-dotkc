@@ -1,11 +1,11 @@
 {
-  "name": "@hcz/openclaw-plugin-dotkc",
+  "name": "@hcz/dotkc-openclaw",
   "version": "0.1.0",
   "description": "OpenClaw plugin: dotkc integration (typed tools + safe secrets inspection)",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/steven-zhc/openclaw-plugin-dotkc.git"
+    "url": "git+https://github.com/steven-zhc/dotkc-openclaw.git"
   },
   "homepage": "https://openclaw-dotkc.hczhang.com/",
   "type": "module",

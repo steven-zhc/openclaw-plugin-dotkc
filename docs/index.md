@@ -4,7 +4,7 @@ title: dotkc OpenClaw Plugin
 
 <div class="badges">
   <a href="https://dotkc.hczhang.com/"><img alt="dotkc" src="https://img.shields.io/badge/dotkc-manual-2d6cdf"></a>
-  <a href="https://github.com/steven-zhc/openclaw-plugin-dotkc"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-repo-181717"></a>
+  <a href="https://github.com/steven-zhc/dotkc-openclaw"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-repo-181717"></a>
   <a href="https://docs.openclaw.ai/tools/plugin"><img alt="OpenClaw plugins" src="https://img.shields.io/badge/OpenClaw-plugins_docs-ff5a2d"></a>
 </div>
 
@@ -32,11 +32,11 @@ dotkc status
 
 ```bash
 # from npm (recommended)
-openclaw plugins install @hcz/openclaw-plugin-dotkc@0.1.0
+openclaw plugins install @hcz/dotkc-openclaw@0.1.0
 openclaw gateway restart
 
 # or local dev link
-openclaw plugins install -l /path/to/openclaw-plugin-dotkc
+openclaw plugins install -l /path/to/dotkc-openclaw
 openclaw gateway restart
 ```
 
@@ -61,7 +61,7 @@ openclaw gateway restart
 ```
 
 <div class="callout">
-<strong>Recommended install:</strong> <code>openclaw plugins install @hcz/openclaw-plugin-dotkc@0.1.0</code>
+<strong>Recommended install:</strong> <code>openclaw plugins install @hcz/dotkc-openclaw@0.1.0</code>
 </div>
 
 ## What problem this solves

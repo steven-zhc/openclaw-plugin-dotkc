@@ -16,7 +16,7 @@ dotkc manual: https://dotkc.hczhang.com/
 
 ```bash
 # from the OpenClaw host
-openclaw plugins install -l /path/to/openclaw-plugin-dotkc
+openclaw plugins install -l /path/to/dotkc-openclaw
 openclaw gateway restart
 ```
 

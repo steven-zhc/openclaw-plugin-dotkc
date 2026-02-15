@@ -149,9 +149,9 @@ Check:
 
 ## Links
 
-- dotkc manual: https://dotkc.hczhang.com/
-- OpenClaw plugin docs: https://docs.openclaw.ai/tools/plugin
-- OpenClaw agent tools guide: https://docs.openclaw.ai/plugins/agent-tools
+- dotkc manual: [dotkc.hczhang.com](https://dotkc.hczhang.com/)
+- OpenClaw plugin docs: [docs.openclaw.ai/tools/plugin](https://docs.openclaw.ai/tools/plugin)
+- OpenClaw agent tools guide: [docs.openclaw.ai/plugins/agent-tools](https://docs.openclaw.ai/plugins/agent-tools)
 
 ## Roadmap
 

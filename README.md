@@ -2,7 +2,7 @@
 
 This plugin exposes **typed OpenClaw tools** for dotkc so agents can interact with dotkc via a constrained interface.
 
-Docs: https://openclaw-dotkc.hczhang.com/
+Docs: https://dotkc-openclaw.hczhang.com/
 
 dotkc manual: https://dotkc.hczhang.com/
 

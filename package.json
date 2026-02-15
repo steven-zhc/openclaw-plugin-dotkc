@@ -7,7 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/steven-zhc/dotkc-openclaw.git"
   },
-  "homepage": "https://openclaw-dotkc.hczhang.com/",
+  "homepage": "https://dotkc-openclaw.hczhang.com/", 
   "type": "module",
   "main": "index.ts",
   "files": [

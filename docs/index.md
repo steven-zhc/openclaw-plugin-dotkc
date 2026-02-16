@@ -170,9 +170,16 @@ Check:
 - OpenClaw plugin docs: [docs.openclaw.ai/tools/plugin](https://docs.openclaw.ai/tools/plugin)
 - OpenClaw agent tools guide: [docs.openclaw.ai/plugins/agent-tools](https://docs.openclaw.ai/plugins/agent-tools)
 
+## Security hardening
+
+This plugin is designed to be **fail-closed**.
+
+- It applies defensive redaction (field-based).
+- It also runs **leak detection** and will refuse to return tool output if it suspects plaintext secrets.
+
 ## Roadmap
 
-- Stronger leakage detection: fail closed if plaintext-looking env lines appear
+- Safe execution tool: run only via spec allowlist + command allowlist (return only exit code + stderr summary)
 - Safe execution tool: run only via spec allowlist + command allowlist (return only exit code + stderr summary)
 - Tests (golden JSON parsing + failure modes)
 - Optional: publish to npm

@@ -92,6 +92,103 @@ function toolErrorPayload({ code, error, stderr }: { code: number; error: string
   };
 }
 
+function* walkStrings(v: any): Generator<string> {
+  if (v == null) return;
+  if (typeof v === 'string') {
+    yield v;
+    return;
+  }
+  if (typeof v === 'number' || typeof v === 'boolean') return;
+  if (Array.isArray(v)) {
+    for (const x of v) yield* walkStrings(x);
+    return;
+  }
+  if (typeof v === 'object') {
+    for (const x of Object.values(v)) yield* walkStrings(x);
+  }
+}
+
+function shannonEntropy(s: string) {
+  const str = String(s);
+  const n = str.length;
+  if (n === 0) return 0;
+  const freq = new Map<string, number>();
+  for (const ch of str) freq.set(ch, (freq.get(ch) ?? 0) + 1);
+  let ent = 0;
+  for (const c of freq.values()) {
+    const p = c / n;
+    ent -= p * Math.log2(p);
+  }
+  return ent;
+}
+
+function detectLeak(input: { stdout: string; stderr: string; parsed: any }) {
+  const reasons: string[] = [];
+
+  const out = `${input.stdout ?? ''}\n${input.stderr ?? ''}`;
+
+  // 1) KEY=VALUE (common accidental dotenv leak)
+  // Require an uppercase-ish key, and at least one non-space char in value.
+  const kv = /(^|\n)([A-Z_][A-Z0-9_]{2,})=([^\n\r]+)(\r?\n|$)/g;
+  let m: RegExpExecArray | null;
+  while ((m = kv.exec(out))) {
+    const key = m[2];
+    const val = (m[3] ?? '').trim();
+    if (!val) continue;
+    // Ignore obvious redactions.
+    if (/\[REDACTED_BY_PLUGIN\]/.test(val) || /\*\*\* \(len=\d+\)/.test(val)) continue;
+    reasons.push(`Detected dotenv-like output: ${key}=…`);
+    break;
+  }
+
+  // 2) Common token prefixes
+  const tokenPrefixes = ['sk-', 'ghp_', 'github_pat_', 'xoxb-', 'xoxp-', 'AKIA', 'ASIA'];
+  for (const p of tokenPrefixes) {
+    if (out.includes(p)) {
+      reasons.push(`Detected token-like prefix: ${p}`);
+      break;
+    }
+  }
+
+  // 3) High-entropy long strings anywhere in parsed JSON
+  // Heuristic: long-ish strings with high entropy often indicate secrets.
+  for (const s of walkStrings(input.parsed)) {
+    if (s.length < 32) continue;
+    // Skip URLs/paths (low risk, high entropy sometimes)
+    if (/^https?:\/\//.test(s)) continue;
+    if (s.includes('/') && s.length < 180) continue;
+
+    const ent = shannonEntropy(s);
+    if (ent >= 4.0) {
+      reasons.push(`Detected high-entropy string (len=${s.length}, H=${ent.toFixed(2)})`);
+      break;
+    }
+  }
+
+  return reasons;
+}
+
+function leakBlockedResponse(reasons: string[]) {
+  return {
+    content: [
+      {
+        type: 'text',
+        text: JSON.stringify(
+          {
+            ok: false,
+            code: 2,
+            error: 'LEAK_BLOCKED: refusing to return suspected secret material to the model',
+            reasons,
+            hint: 'Inspect on the host manually (never via agent tool output). Ensure DOTKC_NO_LEAK=1 on OpenClaw hosts.',
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+  };
+}
+
 export default function dotkcPlugin(api: any) {
   const cfg =
     api?.config?.plugins?.entries?.['dotkc-openclaw-plugin']?.config ??
@@ -111,6 +208,9 @@ export default function dotkcPlugin(api: any) {
       if (!parsed || parsed.format !== 'openclaw') {
         return { content: [{ type: 'text', text: JSON.stringify(toolErrorPayload({ code: res.code, error: 'dotkc_status: failed to parse dotkc --openclaw JSON', stderr: res.err }), null, 2) }] };
       }
+      const reasons = detectLeak({ stdout: res.out, stderr: res.err, parsed });
+      if (reasons.length) return leakBlockedResponse(reasons);
+
       const safe = deepRedact(parsed, { allowUnsafe: false });
       return { content: [{ type: 'text', text: JSON.stringify(safe, null, 2) }] };
     },
@@ -128,6 +228,9 @@ export default function dotkcPlugin(api: any) {
         if (!parsed || parsed.format !== 'openclaw') {
           return { content: [{ type: 'text', text: JSON.stringify(toolErrorPayload({ code: res.code, error: 'dotkc_doctor: failed to parse dotkc --openclaw JSON', stderr: res.err }), null, 2) }] };
         }
+        const reasons = detectLeak({ stdout: res.out, stderr: res.err, parsed });
+        if (reasons.length) return leakBlockedResponse(reasons);
+
         const safe = deepRedact(parsed, { allowUnsafe: false });
         return { content: [{ type: 'text', text: JSON.stringify(safe, null, 2) }] };
       },
@@ -156,6 +259,9 @@ export default function dotkcPlugin(api: any) {
         if (!parsed || parsed.format !== 'openclaw') {
           return { content: [{ type: 'text', text: JSON.stringify(toolErrorPayload({ code: res.code, error: 'dotkc_inspect: failed to parse dotkc --openclaw JSON', stderr: res.err }), null, 2) }] };
         }
+
+        const reasons = detectLeak({ stdout: res.out, stderr: res.err, parsed });
+        if (reasons.length) return leakBlockedResponse(reasons);
 
         // Defensive redaction: even if dotkc (or a wrapper) accidentally includes cleartext values,
         // never return suspicious value-like fields to the model unless allowUnsafe is explicitly enabled.

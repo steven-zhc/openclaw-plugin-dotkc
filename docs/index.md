@@ -51,7 +51,8 @@ openclaw gateway restart
         config: {
           dotkcBin: "dotkc",
           specFile: "./dotkc.spec",
-          allowUnsafe: false
+          allowUnsafe: false,
+          commandAllowlist: ["node", "pnpm"]
         }
       }
     }
@@ -109,6 +110,22 @@ dotkc run --spec-file ./dotkc.spec --openclaw
 ```
 
 Intended for **redacted** sanity checks.
+
+### `dotkc_run` (optional)
+
+Runs a real command with secrets injected, but returns only safe summaries (tails) back to the model.
+
+It spawns:
+
+```bash
+dotkc run --spec-file ./dotkc.spec -- <cmd> [args...]
+```
+
+Guardrails:
+- Requires `DOTKC_NO_LEAK=1` on the OpenClaw host
+- Requires plugin config `commandAllowlist[]`
+- Rejects unsafe `specFile` / `cwd` paths (relative only; no traversal)
+- Fail-closed leak detection before returning any output
 
 <div class="callout callout--warn">
 <strong>Important:</strong> by default this plugin does <em>not</em> enable unsafe/raw values.
@@ -179,7 +196,5 @@ This plugin is designed to be **fail-closed**.
 
 ## Roadmap
 
-- Safe execution tool: run only via spec allowlist + command allowlist (return only exit code + stderr summary)
-- Safe execution tool: run only via spec allowlist + command allowlist (return only exit code + stderr summary)
 - Tests (golden JSON parsing + failure modes)
 - Optional: publish to npm

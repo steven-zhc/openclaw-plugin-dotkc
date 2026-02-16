@@ -16,7 +16,7 @@ This roadmap focuses on the **OpenClaw plugin for dotkc** (typed tools + policy 
 - Redact obvious value-bearing fields before returning tool output to the model (`env`, `value`, `token`, `apiKey`, etc.)
 
 ### 1) Leak detection + fail-closed (in addition to redaction)
-**Status:** ⬜ not yet
+**Status:** ✅ shipped
 
 **Goal:** even if dotkc (or an integration) accidentally emits plaintext, do not return it to the LLM.
 
@@ -30,8 +30,11 @@ On match:
 - Provide a short hint (inspect on host manually)
 
 ### 2) Path restrictions
-- Ensure `specFile` is within workspace (no `~`, no `/etc/...`)
-- Reject traversal (`..`) unless explicitly allowed
+**Status:** 🟡 partial
+
+- ✅ Reject traversal (`..`)
+- ✅ Reject absolute paths / `~` expansion
+- ⬜ Enforce "workspace-only" root (requires OpenClaw workspace path access)
 
 ### 3) Config hardening
 - `allowUnsafe` should require explicit opt-in + loud warning
@@ -40,6 +43,8 @@ On match:
 ## P1 — Real integration value
 
 ### 4) Add `dotkc_run` tool (safe execution)
+**Status:** ✅ shipped
+
 **Goal:** replace `exec "dotkc run ..."` patterns with a constrained tool.
 
 Inputs:
@@ -48,13 +53,10 @@ Inputs:
 - optional `cwd`
 
 Policies:
-- Require `specFile` (no ad-hoc specs)
-- Enforce command allowlist (exact or regex)
-- Return only:
-  - `exitCode`
-  - `durationMs`
-  - `stderrTail` (capped)
-  - optionally `stdoutTail` (capped)
+- ✅ Require `specFile` (no ad-hoc specs)
+- ✅ Enforce command allowlist (exact list)
+- ✅ Return only tails + metadata (`exitCode`, `durationMs`, `stdoutTail`, `stderrTail`)
+- ✅ Fail-closed leak detection on tool output
 
 ### 5) Approvals integration
 - First time a command is run, require approval (optional mode)
@@ -70,13 +72,21 @@ Policies:
 - Structured tool errors (code + hint + suggested commands)
 - Better docs examples by scenario
 
+## P2.5 — Packaging / UX
+
+### 8) Bundle dotkc
+**Status:** ✅ shipped
+
+- Plugin installs `dotkc` as a dependency and runs it via `node + dotkc/bin/dotkc.mjs` by default (no global install required)
+- Plugin enforces `DOTKC_NO_LEAK=1` for dotkc subprocesses by default (no Gateway env config required)
+
 ## P3 — Distribution
 
-### 8) Publish to npm
+### 9) Publish to npm
 **Status:** 🟡 in progress
 
 - Package name: `dotkc-openclaw`
-- Target install: `openclaw plugins install dotkc-openclaw@<version>`
+- Target install: `openclaw plugins install dotkc-openclaw@<version>` (includes bundled dotkc)
 - Versioning + release notes
 
 Note: npm publish requires setting `NPM_TOKEN` in GitHub Actions (release.published workflow already configured).

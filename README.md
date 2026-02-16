@@ -11,12 +11,13 @@ dotkc manual: https://dotkc.hczhang.com/
 - `dotkc_status` (required)
 - `dotkc_doctor` (optional)
 - `dotkc_inspect` (optional, redacted by default)
+- `dotkc_run` (optional, constrained execution)
 
 ## Install
 
 ```bash
 # from npm (recommended)
-openclaw plugins install dotkc-openclaw@0.1.2
+openclaw plugins install dotkc-openclaw@0.1.4
 openclaw gateway restart
 
 # or local dev link
@@ -25,6 +26,8 @@ openclaw gateway restart
 ```
 
 Note: this plugin bundles `dotkc` as a dependency, so you do not need to install dotkc globally.
+
+No-leak default: the plugin enforces `DOTKC_NO_LEAK=1` for dotkc subprocesses automatically (no Gateway env required).
 
 ## Configure (~/.openclaw/openclaw.json)
 
@@ -40,7 +43,8 @@ Note: this plugin bundles `dotkc` as a dependency, so you do not need to install
           specFile: "./dotkc.spec",
           // vaultPath: "/path/to/dotkc.vault",
           // keyPath: "~/.dotkc/key",
-          allowUnsafe: false
+          allowUnsafe: false,
+          commandAllowlist: ["node", "pnpm"]
         }
       }
     }

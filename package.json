@@ -2,6 +2,15 @@
   "name": "dotkc-openclaw",
   "version": "0.1.0",
   "description": "OpenClaw plugin: dotkc integration (typed tools + safe secrets inspection)",
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "dotkc",
+    "secrets",
+    "secret-management",
+    "security",
+    "typed-tools"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

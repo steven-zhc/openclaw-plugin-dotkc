@@ -4,14 +4,15 @@ This roadmap focuses on the **OpenClaw plugin for dotkc** (typed tools + policy 
 
 ## What OpenClaw needs (pain-driven)
 
-OpenClaw plugins run in-process with the Gateway (trusted), but **tool outputs** may be sent to model providers.
-The main pain points we must solve:
+OpenClaw plugins run in-process with the Gateway (trusted), but **tool outputs** may be sent to model providers and persisted to local transcripts.
+Key pain points surfaced in the OpenClaw community/documentation:
 
-1) **Transcript leakage:** secrets accidentally printed (stdout/stderr) or returned in JSON.
-2) **Over-broad execution:** agents use `exec` too freely; we need constrained runners.
-3) **Path exfiltration:** spec/cwd paths escaping workspace.
-4) **Config ergonomics:** users shouldn’t have to wire many env vars to be safe.
-5) **Observability:** when something is blocked, users need actionable reasons.
+1) **Plaintext secrets in config** (encrypted secrets are not first-class yet; see OpenClaw issue #7916).
+2) **Transcript persistence**: once a secret is printed/returned, it can land in session transcripts and logs.
+3) **Over-broad execution**: `exec` + approvals/sandbox complexity makes it easy to over-permit.
+4) **Path exfiltration**: untrusted paths can escape the workspace.
+5) **Ergonomics**: users forget env/config hardening steps; safety should be the default.
+6) **Observability**: when blocked, users need actionable (non-leaky) reasons.
 
 ## Principles
 
@@ -49,7 +50,8 @@ The main pain points we must solve:
 
 - ✅ `allowUnsafe` exists but discouraged
 - ⬜ Make `allowUnsafe` require an additional break-glass env/config (two-step)
-- ⬜ Add explicit docs warning that OpenClaw installs deps with `npm install --ignore-scripts` (avoid deps needing postinstall)
+- ⬜ Add explicit docs note: OpenClaw installs plugin deps with `npm install --ignore-scripts` (avoid deps needing postinstall/native builds)
+- ⬜ Document recommended OpenClaw tool policy: deny `exec/process` by default; prefer `dotkc_run`
 
 ---
 
@@ -66,6 +68,7 @@ The main pain points we must solve:
 Next:
 - ⬜ Allow regex allowlist (careful: denial-of-service / overly broad patterns)
 - ⬜ Add approvals mode (first-run approval per command)
+- ⬜ Tighten argv policy (not just `argv[0]`): allowlist subcommands/flags to reduce prompt-injection risk
 
 ### 5) Default no-leak (no env config required)
 **Status:** ✅ shipped
@@ -74,7 +77,7 @@ Next:
 
 ---
 
-## P2 — Packaging / UX
+## P2 — Packaging / UX / operations
 
 ### 6) Bundle dotkc
 **Status:** ✅ shipped
@@ -83,11 +86,27 @@ Next:
 - Users do not need global dotkc install
 
 ### 7) Tests
+
+### 7.5) Local audit log (non-secret)
+**Status:** ⬜ not yet
+
+- Append-only local log for: `LEAK_BLOCKED`, `COMMAND_NOT_ALLOWED`, `SPEC_PATH_REJECTED`
+- Must not include plaintext values
+- Helps post-incident review without exposing secrets
+
+### 7.6) Workspace-root enforcement
+**Status:** ⬜ not yet
+
+- Add `workspaceRoot` config (or detect via OpenClaw runtime if available)
+- Enforce `specFile` and `cwd` under workspaceRoot
+
+### 7) Tests
 **Status:** ⬜ not yet
 
 - Golden tests for JSON parsing
-- Leak detector test corpus (positive/negative)
+- Leak detector test corpus (positive/negative + known token formats)
 - Failure modes: missing spec file, disallowed command, bad cwd
+- Ensure blocked responses never echo plaintext secrets (stderr tails, reasons, etc.)
 
 ---
 

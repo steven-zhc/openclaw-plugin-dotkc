@@ -12,13 +12,19 @@ dotkc manual: https://dotkc.hczhang.com/
 - `dotkc_doctor` (optional)
 - `dotkc_inspect` (optional, redacted by default)
 
-## Install (dev / local path)
+## Install
 
 ```bash
-# from the OpenClaw host
+# from npm (recommended)
+openclaw plugins install dotkc-openclaw@0.1.2
+openclaw gateway restart
+
+# or local dev link
 openclaw plugins install -l /path/to/dotkc-openclaw
 openclaw gateway restart
 ```
+
+Note: this plugin bundles `dotkc` as a dependency, so you do not need to install dotkc globally.
 
 ## Configure (~/.openclaw/openclaw.json)
 
@@ -29,7 +35,8 @@ openclaw gateway restart
       "dotkc-openclaw-plugin": {
         enabled: true,
         config: {
-          dotkcBin: "dotkc",
+          // dotkcBin: "dotkc", // optional override (default uses bundled dotkc)
+          dotkcBin: "",
           specFile: "./dotkc.spec",
           // vaultPath: "/path/to/dotkc.vault",
           // keyPath: "~/.dotkc/key",

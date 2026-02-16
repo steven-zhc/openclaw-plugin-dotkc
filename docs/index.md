@@ -22,22 +22,22 @@ Typed OpenClaw tools for **dotkc** so agents can use secrets workflows through a
 
 ## Quick start
 
-1) Install dotkc and make sure it can decrypt on the OpenClaw host:
-
-```bash
-dotkc status
-```
-
-2) Install this plugin (local dev link):
+1) Install this plugin (dotkc is bundled):
 
 ```bash
 # from npm (recommended)
-openclaw plugins install dotkc-openclaw@0.1.0
+openclaw plugins install dotkc-openclaw@0.1.2
 openclaw gateway restart
 
 # or local dev link
 openclaw plugins install -l /path/to/dotkc-openclaw
 openclaw gateway restart
+```
+
+2) Verify dotkc can decrypt on the OpenClaw host:
+
+```bash
+dotkc status
 ```
 
 3) Enable the plugin + opt-in tools:
@@ -49,7 +49,8 @@ openclaw gateway restart
       dotkc: {
         enabled: true,
         config: {
-          dotkcBin: "dotkc",
+          // dotkcBin: "dotkc", // optional override (default uses bundled dotkc)
+          dotkcBin: "",
           specFile: "./dotkc.spec",
           allowUnsafe: false,
           commandAllowlist: ["node", "pnpm"]
@@ -62,7 +63,7 @@ openclaw gateway restart
 ```
 
 <div class="callout">
-<strong>Recommended install:</strong> <code>openclaw plugins install dotkc-openclaw@0.1.0</code>
+<strong>Recommended install:</strong> <code>openclaw plugins install dotkc-openclaw@0.1.2</code>
 </div>
 
 ## What problem this solves

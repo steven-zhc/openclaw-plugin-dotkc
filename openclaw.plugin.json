@@ -7,7 +7,7 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
-      "dotkcBin": { "type": "string", "default": "dotkc" },
+      "dotkcBin": { "type": "string", "default": "" },
       "vaultPath": { "type": "string" },
       "keyPath": { "type": "string" },
       "specFile": { "type": "string", "default": "./dotkc.spec" },

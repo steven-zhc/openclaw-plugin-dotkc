@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { spawn } from 'node:child_process';
+import { createRequire } from 'node:module';
 
 // Prefer a stable plugin id (over package-derived ids).
 export const id = 'dotkc';
@@ -7,7 +8,23 @@ export const id = 'dotkc';
 function runDotkc({ dotkcBin, args, stdinText, cwd }: { dotkcBin: string; args: string[]; stdinText?: string; cwd?: string }) {
   return new Promise<{ code: number; out: string; err: string; durationMs: number }>((resolve) => {
     const t0 = Date.now();
-    const p = spawn(dotkcBin, args, {
+
+    // Support a bundled "node + entrypoint" mode without requiring a real binary on PATH.
+    // dotkcBin can be either:
+    // - "dotkc" (normal binary)
+    // - JSON string: { kind:'node-entry', node:'/path/to/node', entry:'/path/to/dotkc.mjs' }
+    let spawnCmd = dotkcBin;
+    let spawnArgs = args;
+    try {
+      const parsed = JSON.parse(dotkcBin);
+      if (parsed?.kind === 'node-entry' && parsed.node && parsed.entry) {
+        spawnCmd = String(parsed.node);
+        spawnArgs = [String(parsed.entry), ...args];
+      }
+    } catch {
+      // not json
+    }
+    const p = spawn(spawnCmd, spawnArgs, {
       stdio: ['pipe', 'pipe', 'pipe'],
       env: process.env,
       cwd: cwd ?? process.cwd(),
@@ -214,7 +231,26 @@ export default function dotkcPlugin(api: any) {
     api?.config?.plugins?.entries?.dotkc?.config ??
     api?.config?.plugins?.entries?.['dotkc']?.config;
 
-  const dotkcBin = cfg?.dotkcBin || 'dotkc';
+  const dotkcBinCfg = cfg?.dotkcBin;
+
+  // Default: use bundled dotkc (installed as a dependency of this plugin), so users
+  // do not need to install dotkc globally.
+  const require = createRequire(import.meta.url);
+  let dotkcBin = 'dotkc';
+
+  if (typeof dotkcBinCfg === 'string' && dotkcBinCfg.trim()) {
+    dotkcBin = dotkcBinCfg.trim();
+  } else {
+    try {
+      const dotkcEntry = require.resolve('dotkc/bin/dotkc.mjs');
+      dotkcBin = process.execPath;
+      // Wrap node + dotkc entry as a "binary" by storing it in cfg shape.
+      // We implement this by passing [node, dotkcEntry, ...args] to spawn.
+      (dotkcBin as any) = JSON.stringify({ kind: 'node-entry', node: process.execPath, entry: dotkcEntry });
+    } catch {
+      dotkcBin = 'dotkc';
+    }
+  }
 
   api.registerTool({
     name: 'dotkc_status',
